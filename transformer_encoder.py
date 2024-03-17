@@ -25,14 +25,10 @@ class MHA(nn.Module):
         # H = number of heads, HD = head dimension
         # token_seq shape: (B, T, TD)
         batch_size, seq_len, token_dim = token_seq.shape
-        print("############ MHA forward ############")
-        print(f'batch_size: {batch_size}, seq_len: {seq_len}, token_dim: {token_dim}')
         
         # reshape the token sequence to split the token dimension into n_heads
         # (B, T, TD) -> (B, T, H, HD)
         token_seq = token_seq.reshape(batch_size, seq_len, self.n_heads, self.head_dim)
-        print(f'token_seq reshaped: {token_seq.shape}')
-
 
          # calculate self-attention for each head
         for i in range(self.n_heads):
@@ -40,17 +36,14 @@ class MHA(nn.Module):
             query = self.query[i](token_seq[:, :, i])
             key = self.key[i](token_seq[:, :, i])
             value = self.value[i](token_seq[:, :, i])
-            print(f'query: {query.shape}, key: {key.shape}, value: {value.shape}')
 
             # calculate the attention scores
             # attention shape: (B, T, T)
             attention = self.softmax(torch.matmul(query, key.transpose(-2, -1)) / np.sqrt(self.head_dim))
-            print(f'attention: {attention.shape}')
 
             # apply the attention scores to the value
-            out = torch.matmul(attention, value)
             # out shape: (B, T, HD)
-            print(f'out: {out.shape}')
+            out = torch.matmul(attention, value)
 
             # concatenate the outputs of each head
             if i == 0:
@@ -59,8 +52,6 @@ class MHA(nn.Module):
                 concat_out = torch.cat((concat_out, out), dim=-1)
 
         # concatenated output is the same shape as input -> (B, T, TD)
-        print(f'concat_out: {concat_out.shape}')
-
         return concat_out
     
 
@@ -82,15 +73,12 @@ class TransformerEncoder(nn.Module):
 
     def forward(self, input):
         # B = batch size, T = sequence length, TD = token dimension
-        # input is of shape -> (B, T, TD)
-        print("############ TransformerEncoder  ############")
-        print(f'input shape: {input.shape}')
-        
+        # input is of shape -> (B, T, TD)       
         l_norm1 = self.norm1(input) 
         out = input + self.mha(l_norm1)
         l_norm2 = self.norm2(out)
-        out += self.mlp(l_norm2)
+        out_mlp = out + self.mlp(l_norm2)
 
         # output retains the input shate (B, T, TD)
-        return out
+        return out_mlp
          

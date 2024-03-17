@@ -4,7 +4,7 @@ import numpy as np
 from transformer_encoder import TransformerEncoder
 
 class ViT(nn.Module):
-    def __init__(self, image_size, patch_size, num_classes, channels, encoder_blocks=1, n_heads=8,token_dim=512, mlp_dim=512, pos_encoding_learnable=False):
+    def __init__(self, image_size, patch_size, num_classes, channels, encoder_blocks, n_heads,token_dim, mlp_dim, pos_encoding_learnable):
         super(ViT, self).__init__()
         # Currently only supports square images
         assert image_size % patch_size == 0, 'Image dimensions must be divisible by the patch size.'
@@ -33,17 +33,6 @@ class ViT(nn.Module):
             nn.Softmax(dim=-1)
         )
 
-        # self.pos_embedding = nn.Parameter(torch.randn(1, num_patches + 1, dim))
-        # self.patch_to_embedding = nn.Linear(patch_dim, dim)
-        # self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
-        # self.transformer = nn.TransformerEncoder(nn.TransformerEncoderLayer(d_model=dim, nhead=heads, dim_feedforward=mlp_dim), num_layers=depth)
-        # self.to_cls_token = nn.Identity()
-        # self.mlp_head = nn.Sequential(
-        #     nn.Linear(dim, mlp_dim),
-        #     nn.GELU(),
-        #     nn.Linear(mlp_dim, num_classes)
-        # )
-
 
     def forward(self, image):
 
@@ -71,19 +60,6 @@ class ViT(nn.Module):
 
         return out
     
-
-
-
-    
-        # x = self.patch_to_embedding(x)
-        # x = x.view(x.size(0), -1, x.size(-1))
-        # cls_tokens = self.cls_token.expand(image.size(0), -1, -1)
-        # x = torch.cat((cls_tokens, x), dim=1)
-        # x += self.pos_embedding
-        # x = self.transformer(x)
-        # x = self.to_cls_token(x[:, 0])
-        # return self.mlp_head(x)
-    
     def _make_patches(self, image):
         # input is a tensor of shape (B, C, H, W)
         # B = batch size, C = n_channels, H = height, W = width
@@ -91,19 +67,15 @@ class ViT(nn.Module):
 
         # makes patches of shape along height (B, C, H, W) -> (B, C, H/p, W, p)
         x = image.unfold(2, p, p)
-        print(f'{x.shape}')
 
         # makes patches of shape along width (B, C, H/p, W, p) -> (B, C, H/p, W/p, p, p)
         x = x.unfold(3, p, p)
-        print(f'{x.shape}')
         
         # makes patches of shape (B, C, H/p, W/p, p, p) -> (B, C, H/p * W/p, p * p)
         x = x.contiguous().view(x.size(0), x.size(1), -1, p * p)
-        print(f'{x.shape}')
         
         # flattens channels (B, C, H/p * W/p, p * p) -> (B, H/p * W/p, C * p * p)
         x = x.contiguous().view(x.size(0), x.size(2), -1)
-        print(f'{x.shape}')
         
         return x
     
@@ -114,7 +86,7 @@ class ViT(nn.Module):
             return nn.Parameter(torch.randn(n_tokens, dim))
         else:
             # uses fixed positional embeddings
-            return nn.Parameter(torch.tensor(self._fixed_positional_embedding(n_tokens, dim)), requires_grad=False)
+            return nn.Parameter(self._fixed_positional_embedding(n_tokens, dim).clone().detach(), requires_grad=False)
     
     # positional embedding proposed in the 'Attention is All You Need' paper
     def _fixed_positional_embedding(self, n_tokens, dim):
