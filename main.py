@@ -7,7 +7,7 @@ from vit_model import ViT
 
 #########################
 # to be set in a config file
-batch_size = 64
+batch_size = 32
 
 #########################
 
@@ -41,4 +41,4 @@ num_classes = 10
 model = ViT(image_size=image_size, patch_size=patch_size, num_classes=num_classes, channels=channels, pos_encoding_learnable=False)
 image_batch = next(iter(trainloader))[0]
 output = model(image_batch)
-print(output.shape)
+# print(output.shape)

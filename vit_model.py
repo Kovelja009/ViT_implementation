@@ -1,15 +1,17 @@
 import torch
 import torch.nn as nn
 import numpy as np
+from transformer_encoder import MHA
 
 class ViT(nn.Module):
-    def __init__(self, image_size, patch_size, num_classes, channels, token_dim=512, pos_encoding_learnable=False):
+    def __init__(self, image_size, patch_size, num_classes, channels, n_heads=8,token_dim=512, pos_encoding_learnable=False):
         super(ViT, self).__init__()
         # Currently only supports square images
         assert image_size % patch_size == 0, 'Image dimensions must be divisible by the patch size.'
        
         num_patches = (image_size // patch_size) ** 2
         patch_dim = channels * patch_size ** 2
+
         assert num_patches * patch_dim == channels * image_size ** 2, 'Patches must tile the image exactly.'
         
         self.patch_size = patch_size
@@ -22,6 +24,10 @@ class ViT(nn.Module):
 
         # Positional embedding can be learned or fixed (+1 for the class token)
         self.pos_embedding = self._get_pos_embedding(num_patches + 1, token_dim, pos_encoding_learnable)
+        
+        # Multi-head self-attention
+        self.mha = MHA(token_dim, n_heads)
+        
         # self.pos_embedding = nn.Parameter(torch.randn(1, num_patches + 1, dim))
         # self.patch_to_embedding = nn.Linear(patch_dim, dim)
         # self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
@@ -48,8 +54,16 @@ class ViT(nn.Module):
 
         tokens += pos_embedding
 
+        # apply multi-head self-attention
+        tokens = self.mha(tokens)
+
 
         return tokens
+    
+
+
+
+    
         # x = self.patch_to_embedding(x)
         # x = x.view(x.size(0), -1, x.size(-1))
         # cls_tokens = self.cls_token.expand(image.size(0), -1, -1)
@@ -88,7 +102,7 @@ class ViT(nn.Module):
             # uses learnable positional embeddings
             return nn.Parameter(torch.randn(n_tokens, dim))
         else:
-            # uses fixed positional embeddings proposed
+            # uses fixed positional embeddings
             return nn.Parameter(torch.tensor(self._fixed_positional_embedding(n_tokens, dim)), requires_grad=False)
     
     # positional embedding proposed in the 'Attention is All You Need' paper
