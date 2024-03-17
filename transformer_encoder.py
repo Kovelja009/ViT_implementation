@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-# Multi-head self-attention 
+# Multi-head self-attention block
 class MHA(nn.Module):
     def __init__(self, token_dim, n_heads):
         super(MHA, self).__init__()
@@ -62,3 +62,35 @@ class MHA(nn.Module):
         print(f'concat_out: {concat_out.shape}')
 
         return concat_out
+    
+
+class TransformerEncoder(nn.Module):
+    def __init__(self, token_dim, n_heads, mlp_dim):
+        super(TransformerEncoder, self).__init__()
+        self.token_dim = token_dim
+        self.n_heads = n_heads
+
+        self.norm1 = nn.LayerNorm(token_dim)
+        self.mha = MHA(token_dim, n_heads)
+        self.norm2 = nn.LayerNorm(token_dim)
+
+        self.mlp = nn.Sequential(
+            nn.Linear(token_dim, mlp_dim),
+            nn.GELU(),
+            nn.Linear(mlp_dim, token_dim)
+        )
+
+    def forward(self, input):
+        # B = batch size, T = sequence length, TD = token dimension
+        # input is of shape -> (B, T, TD)
+        print("############ TransformerEncoder  ############")
+        print(f'input shape: {input.shape}')
+        
+        l_norm1 = self.norm1(input) 
+        out = input + self.mha(l_norm1)
+        l_norm2 = self.norm2(out)
+        out += self.mlp(l_norm2)
+
+        # output retains the input shate (B, T, TD)
+        return out
+         

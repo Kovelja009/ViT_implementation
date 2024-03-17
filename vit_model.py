@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from transformer_encoder import MHA
+from transformer_encoder import TransformerEncoder
 
 class ViT(nn.Module):
-    def __init__(self, image_size, patch_size, num_classes, channels, n_heads=8,token_dim=512, pos_encoding_learnable=False):
+    def __init__(self, image_size, patch_size, num_classes, channels, encoder_blocks=1, n_heads=8,token_dim=512, mlp_dim=512, pos_encoding_learnable=False):
         super(ViT, self).__init__()
         # Currently only supports square images
         assert image_size % patch_size == 0, 'Image dimensions must be divisible by the patch size.'
@@ -25,9 +25,14 @@ class ViT(nn.Module):
         # Positional embedding can be learned or fixed (+1 for the class token)
         self.pos_embedding = self._get_pos_embedding(num_patches + 1, token_dim, pos_encoding_learnable)
         
-        # Multi-head self-attention
-        self.mha = MHA(token_dim, n_heads)
+        # Transformer Encoder (we can have multiple encoders)
+        self.transformers = nn.ModuleList([TransformerEncoder(token_dim, n_heads, mlp_dim) for _ in range(encoder_blocks)])
         
+        self.mlp_head = nn.Sequential(
+            nn.Linear(token_dim, num_classes),
+            nn.Softmax(dim=-1)
+        )
+
         # self.pos_embedding = nn.Parameter(torch.randn(1, num_patches + 1, dim))
         # self.patch_to_embedding = nn.Linear(patch_dim, dim)
         # self.cls_token = nn.Parameter(torch.randn(1, 1, dim))
@@ -54,11 +59,17 @@ class ViT(nn.Module):
 
         tokens += pos_embedding
 
-        # apply multi-head self-attention
-        tokens = self.mha(tokens)
+        # Pass through Transformer Encoder (we can have multiple encoders)
+        for transformer in self.transformers:
+            tokens = transformer(tokens)
 
+        # Taking only the classification token
+        input = tokens[:, 0]
 
-        return tokens
+        # Running through the classification network
+        out = self.mlp_head(input)
+
+        return out
     
 
 
