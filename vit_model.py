@@ -30,7 +30,6 @@ class ViT(nn.Module):
         
         self.mlp_head = nn.Sequential(
             nn.Linear(token_dim, num_classes),
-            nn.Softmax(dim=-1)
         )
 
 
