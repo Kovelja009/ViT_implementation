@@ -2,15 +2,33 @@
 
 <div style="text-align:center;">
   <img src="https://github.com/Kovelja009/ViT_impementation/assets/81018289/38ff49cf-a7b3-4385-91d4-0d48006db69d" alt="Description of the image" width="500">
-</div>
+</div>  
+<br>
 
 This repository contains an implementation of the **Vision Transformer** (**ViT**) model using PyTorch. ViT applies the transformer architecture, originally designed for natural language processing tasks, to computer vision tasks.
+
+## Features
+- Implementation of the Vision Transformer model in PyTorch.
+- Training and evaluation scripts for image classification tasks.
+
+## Usage
+1. Install dependencies:
+```
+pip install -r requirements.txt
+```
+2. Run the training script
+```
+python training.py
+```
+3. Hyperparameter tuning can be done in ``hyper_params.json``
+
+
 ## Overview:
 
 1. **Patching**:
   - The input image is divided into non-overlapping patches of fixed size.
   - Each patch is typically square-shaped and contains a fixed number of pixels.
-  - For example, common patch sizes are 16x16 or 32x32 pixels.
+  - For example, common patch sizes are ``16x16`` or ``32x32`` pixels.
   - The image is divided into patches in a grid-like fashion, preserving spatial information.
 
 2. **Patch Embedding**:
@@ -42,19 +60,6 @@ This repository contains an implementation of the **Vision Transformer** (**ViT*
 
 In summary, **ViT** model transforms the input image into a sequence of tokens that are appended to the **class token** that are then passed through the **transformer encoder**, with the class token at the output of encoder representing the input for the **classification network**.
 
-## Features
-- Implementation of the Vision Transformer model in PyTorch.
-- Training and evaluation scripts for image classification tasks.
-
-## Usage
-1. Install dependencies:
-```
-pip install -r requirements.txt
-```
-2. Run the training script
-```
-python main.py
-```
 
 
 ## References
