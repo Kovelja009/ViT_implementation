@@ -23,7 +23,7 @@ class ViT(nn.Module):
         self.class_token = nn.Parameter(torch.randn(1, token_dim))
 
         # Positional embedding can be learned or fixed (+1 for the class token)
-        self.pos_embedding = self._get_pos_embedding(num_patches + 1, token_dim, pos_encoding_learnable)
+        self.pos_embedding = self._get_pos_embedding(num_patches, token_dim, pos_encoding_learnable)
         
         # Transformer Encoder (we can have multiple encoders)
         self.transformers = nn.ModuleList([TransformerEncoder(token_dim, n_heads, mlp_dim) for _ in range(encoder_blocks)])
@@ -40,7 +40,7 @@ class ViT(nn.Module):
 
         batch_size = tokens.size(0)
         # append class token to the beginning of the sequence for each image in the batch
-        tokens = torch.stack([torch.vstack([self.class_token, tokens[i]]) for i in range(batch_size)])
+        # tokens = torch.stack([torch.vstack([self.class_token, tokens[i]]) for i in range(batch_size)])
 
         # add positional embedding to the patches (only repeats batch_size times, other dimensions are broadcasted automatically)
         pos_embedding = self.pos_embedding.repeat(batch_size, 1, 1)

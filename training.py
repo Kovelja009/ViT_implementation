@@ -30,7 +30,7 @@ def training():
     image_size = 28
     channels = 1
     num_classes = 10
-    log_filename = 'logs/session.json'
+    log_filename = 'logs/fixed_embeddings_without_class_token.json'
     #########################
 
     # Define transformations to apply to the data
@@ -68,6 +68,7 @@ def training():
     epoch_times = []
     training_losses = []
     testing_losses = []
+    testing_accuracies = []
 
     for epoch in tqdm(range(n_epochs)):
         model.train()
@@ -118,6 +119,7 @@ def training():
         test_accuracy = 100 * correct / total
         t_loss = test_loss / len(testloader)
         testing_losses.append(t_loss)
+        testing_accuracies.append(test_accuracy)
         print(f'Epoch {epoch + 1} testing accuracy: {test_accuracy:.2f}%')
         print(f'Epoch {epoch + 1} testing loss: {t_loss:.4f}')
 
@@ -138,7 +140,8 @@ def training():
                         metrics={
                             "training_losses": training_losses,
                             "testing_losses": testing_losses,
-                            "times_per_epoch": epoch_times
+                            "times_per_epoch": epoch_times,
+                            "testing_accuracies": testing_accuracies
                         })
 
 
