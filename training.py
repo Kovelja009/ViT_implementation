@@ -25,6 +25,7 @@ def training():
     batch_size =config['batch_size']
     n_epochs =config['n_epochs']
     lr=config['lr']
+    best_path = config['best_path']
 
     # Constants
     image_size = 28
@@ -125,6 +126,11 @@ def training():
 
 
     print('Finished Training')
+
+    # Save the model
+    print(f'Saving model to {best_path}')
+    torch.save(model.state_dict(), best_path)
+
     print(f'Saving session to {log_filename}')
     save_params_to_json(log_filename,
                         config={

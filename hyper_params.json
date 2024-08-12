@@ -1,11 +1,12 @@
 {
     "patch_size": 4,
-    "pos_encoding_learnable": false,
+    "pos_encoding_learnable": true,
     "token_dim": 8,
     "n_heads": 2,
     "encoder_blocks": 3,
     "mlp_dim": 32,
     "batch_size": 128,
     "lr": 0.005,
-    "n_epochs": 30
+    "n_epochs": 3,
+    "best_path": "pretrained_models/best_model.pth"
   }
