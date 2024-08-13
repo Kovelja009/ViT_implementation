@@ -40,7 +40,7 @@ def plot_pos_embedding(pos_emb, num_patches):
     
     
     # Add title to the right of the colorbar
-    fig.text(0.98, 0.5, 'Kosinusna sličnost', rotation=270, va='center', ha='center', fontsize=14)
+    fig.text(0.98, 0.5, 'Kosinusna sličnost', rotation=270, va='center', ha='center', fontsize=17)
 
     # Specifically clear ticks and labels from the first patch
     axes[0, 0].set_xticks([])
@@ -50,7 +50,7 @@ def plot_pos_embedding(pos_emb, num_patches):
     axes[0, 0].set_ylabel('1', fontsize=12, rotation=0, labelpad=15)
 
     # Set overall title and labels
-    fig.suptitle('Kosinusna sličnost pozicionih vektora različitih patch-eva', fontsize=16)
+    fig.suptitle('Pozicioni vektori koji se uče', fontsize=19)
     fig.text(0.5, 0.05, 'x-koordinata patch-a', ha='center', va='center', fontsize=14)
     fig.text(0.05, 0.5, 'y-koordinata patch-a', ha='center', va='center', rotation='vertical', fontsize=14)
     plt.subplots_adjust(top=0.93, right=0.9, wspace=0.1, hspace=0.1)

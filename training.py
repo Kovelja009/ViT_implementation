@@ -26,12 +26,12 @@ def training():
     n_epochs =config['n_epochs']
     lr=config['lr']
     best_path = config['best_path']
+    log_filename = config['log_path']
 
     # Constants
     image_size = 28
     channels = 1
     num_classes = 10
-    log_filename = 'logs/fixed_embeddings_without_class_token.json'
     #########################
 
     # Define transformations to apply to the data
